@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Resale Price Estimator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Roboto+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#14171a;
+    --panel:#1b1f23;
+    --panel-2:#20252a;
+    --line:#2b3036;
+    --text:#eceeec;
+    --text-dim:#9aa0a6;
+    --text-faint:#666c72;
+    --amber:#e8a33d;
+    --amber-dim:#8a6428;
+    --up:#5fb583;
+    --down:#d9705f;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Inter',sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{
+    max-width:980px;
+    margin:0 auto;
+    padding:2.5rem 1.5rem 4rem;
+  }
+  .eyebrow{
+    font-family:'Roboto Mono',monospace;
+    font-size:12px;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    color:var(--amber);
+    margin:0 0 0.5rem;
+  }
+  h1{
+    font-family:'Barlow Condensed',sans-serif;
+    font-weight:700;
+    font-size:44px;
+    line-height:1.05;
+    margin:0 0 0.6rem;
+    letter-spacing:0.01em;
+  }
+  .sub{
+    color:var(--text-dim);
+    font-size:15px;
+    line-height:1.6;
+    max-width:640px;
+    margin:0 0 2.5rem;
+  }
+  .grid{
+    display:grid;
+    grid-template-columns:1.1fr 0.9fr;
+    gap:1.5rem;
+  }
+  @media (max-width:800px){
+    .grid{grid-template-columns:1fr;}
+  }
+  .panel{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:4px;
+    padding:1.75rem;
+  }
+  .panel-label{
+    font-family:'Roboto Mono',monospace;
+    font-size:11px;
+    letter-spacing:0.1em;
+    text-transform:uppercase;
+    color:var(--text-faint);
+    margin:0 0 1.25rem;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+  }
+  .field{
+    margin-bottom:1.4rem;
+  }
+  .field:last-child{margin-bottom:0;}
+  .field-row{
+    display:flex;
+    align-items:baseline;
+    justify-content:space-between;
+    margin-bottom:0.5rem;
+  }
+  label{
+    font-size:13px;
+    color:var(--text-dim);
+    font-weight:500;
+  }
+  .field-value{
+    font-family:'Roboto Mono',monospace;
+    font-size:13px;
+    color:var(--text);
+  }
+  input[type="range"]{
+    -webkit-appearance:none;
+    width:100%;
+    height:2px;
+    background:var(--line);
+    border-radius:2px;
+    outline:none;
+    margin:0;
+  }
+  input[type="range"]::-webkit-slider-thumb{
+    -webkit-appearance:none;
+    width:16px;
+    height:16px;
+    border-radius:50%;
+    background:var(--amber);
+    cursor:pointer;
+    border:2px solid var(--bg);
+  }
+  input[type="range"]::-moz-range-thumb{
+    width:16px;
+    height:16px;
+    border-radius:50%;
+    background:var(--amber);
+    cursor:pointer;
+    border:2px solid var(--bg);
+  }
+  select{
+    width:100%;
+    background:var(--panel-2);
+    border:1px solid var(--line);
+    color:var(--text);
+    font-family:'Inter',sans-serif;
+    font-size:14px;
+    padding:10px 12px;
+    border-radius:3px;
+    outline:none;
+    appearance:none;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%239aa0a6'/%3E%3C/svg%3E");
+    background-repeat:no-repeat;
+    background-position:right 12px center;
+  }
+  select:focus{border-color:var(--amber);}
+  .pillrow{
+    display:flex;
+    gap:8px;
+  }
+  .pill{
+    flex:1;
+    text-align:center;
+    padding:9px 6px;
+    font-size:13px;
+    font-weight:500;
+    color:var(--text-dim);
+    background:var(--panel-2);
+    border:1px solid var(--line);
+    border-radius:3px;
+    cursor:pointer;
+    user-select:none;
+    transition:border-color .12s, color .12s, background .12s;
+  }
+  .pill.active{
+    color:var(--bg);
+    background:var(--amber);
+    border-color:var(--amber);
+    font-weight:600;
+  }
+  .estimate-block{
+    text-align:left;
+    padding-bottom:1.5rem;
+    margin-bottom:1.5rem;
+    border-bottom:1px solid var(--line);
+  }
+  .estimate-label{
+    font-family:'Roboto Mono',monospace;
+    font-size:11px;
+    letter-spacing:0.1em;
+    text-transform:uppercase;
+    color:var(--text-faint);
+    margin:0 0 0.6rem;
+  }
+  .estimate-value{
+    font-family:'Roboto Mono',monospace;
+    font-size:46px;
+    font-weight:500;
+    color:var(--amber);
+    line-height:1;
+    letter-spacing:-0.01em;
+  }
+  .estimate-range{
+    font-family:'Roboto Mono',monospace;
+    font-size:13px;
+    color:var(--text-faint);
+    margin-top:0.6rem;
+  }
+  .factor-title{
+    font-family:'Roboto Mono',monospace;
+    font-size:11px;
+    letter-spacing:0.1em;
+    text-transform:uppercase;
+    color:var(--text-faint);
+    margin:0 0 0.9rem;
+  }
+  .factor-row{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-bottom:9px;
+    font-size:12.5px;
+  }
+  .factor-name{
+    width:100px;
+    flex-shrink:0;
+    color:var(--text-dim);
+  }
+  .factor-bar-track{
+    flex:1;
+    height:14px;
+    background:var(--panel-2);
+    border-radius:2px;
+    position:relative;
+    overflow:hidden;
+  }
+  .factor-bar-mid{
+    position:absolute;
+    left:50%;
+    top:0;
+    bottom:0;
+    width:1px;
+    background:var(--line);
+  }
+  .factor-bar-fill{
+    position:absolute;
+    top:1px;
+    bottom:1px;
+    border-radius:1px;
+  }
+  .factor-val{
+    width:52px;
+    flex-shrink:0;
+    text-align:right;
+    font-family:'Roboto Mono',monospace;
+    color:var(--text-faint);
+    font-size:12px;
+  }
+  .footnote{
+    margin-top:2rem;
+    padding-top:1.25rem;
+    border-top:1px solid var(--line);
+    font-size:12.5px;
+    color:var(--text-faint);
+    line-height:1.6;
+  }
+  .footnote b{color:var(--text-dim); font-weight:500;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <p class="eyebrow">Resale valuation tool</p>
+  <h1>What's it worth today?</h1>
+  <p class="sub">Estimate a used vehicle's resale price from its original showroom price, age, mileage, and listing details. Model trained on 299 historical listings using log-linear regression (cross-validated R² ≈ 0.96).</p>
+
+  <div class="grid">
+
+    <div class="panel">
+      <p class="panel-label">Vehicle details</p>
+
+      <div class="field">
+        <div class="field-row">
+          <label for="model">Model</label>
+        </div>
+        <select id="model"></select>
+      </div>
+
+      <div class="field">
+        <div class="field-row">
+          <label for="presentPrice">Original showroom price</label>
+          <span class="field-value" id="presentPriceVal">9.00 lakh</span>
+        </div>
+        <input type="range" id="presentPrice" min="0.3" max="93" step="0.1" value="9" />
+      </div>
+
+      <div class="field">
+        <div class="field-row">
+          <label for="age">Vehicle age</label>
+          <span class="field-value" id="ageVal">5 yrs</span>
+        </div>
+        <input type="range" id="age" min="1" max="18" step="1" value="5" />
+      </div>
+
+      <div class="field">
+        <div class="field-row">
+          <label for="kms">Kilometers driven</label>
+          <span class="field-value" id="kmsVal">40,000 km</span>
+        </div>
+        <input type="range" id="kms" min="500" max="500000" step="500" value="40000" />
+      </div>
+
+      <div class="field">
+        <div class="field-row"><label>Previous owners</label></div>
+        <div class="pillrow" id="ownerPills">
+          <div class="pill active" data-val="0">0</div>
+          <div class="pill" data-val="1">1</div>
+          <div class="pill" data-val="3">3+</div>
+        </div>
+      </div>
+
+      <div class="field">
+        <div class="field-row"><label>Fuel type</label></div>
+        <div class="pillrow" id="fuelPills">
+          <div class="pill active" data-val="Petrol">Petrol</div>
+          <div class="pill" data-val="Diesel">Diesel</div>
+          <div class="pill" data-val="CNG">CNG</div>
+        </div>
+      </div>
+
+      <div class="field">
+        <div class="field-row"><label>Transmission</label></div>
+        <div class="pillrow" id="transPills">
+          <div class="pill active" data-val="Manual">Manual</div>
+          <div class="pill" data-val="Automatic">Automatic</div>
+        </div>
+      </div>
+
+      <div class="field">
+        <div class="field-row"><label>Sold by</label></div>
+        <div class="pillrow" id="sellPills">
+          <div class="pill active" data-val="Dealer">Dealer</div>
+          <div class="pill" data-val="Individual">Individual</div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="panel">
+      <div class="estimate-block">
+        <p class="estimate-label">Estimated selling price</p>
+        <div class="estimate-value" id="priceOut">-- lakh</div>
+        <div class="estimate-range" id="rangeOut">approx range --</div>
+      </div>
+
+      <p class="factor-title">What's moving the price</p>
+      <div id="factors"></div>
+
+      <div class="footnote">
+        <b>How this works:</b> a log-linear regression fit on historical resale listings. Each bar shows how much that input pushes the estimate above (amber) or below (red) the dataset's baseline price. This is a statistical estimate for reference, not a valuation guarantee &mdash; condition, location, and local demand also affect real-world price.
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const COEF = {
+  intercept: 0.5043339845036909,
+  log_present_price: 0.7505486908437763,
+  driven_kms: -4.47681477885131e-07,
+  car_age: -0.0648488022935458,
+  owner: -0.1218953081703161,
+  fuel: { CNG: -0.05523736629490207, Diesel: 0.08767264915051641, Petrol: -0.032435282855614075 },
+  selling_type: { Dealer: 0.06600055823946469, Individual: -0.06600055823946509 },
+  transmission: { Automatic: 0.0014439973609523902, Manual: -0.0014439973609522462 },
+  brand: {
+    alto: -0.06343043874866205, amaze: -0.039857346129495375, bajaj: 0.006946340313852564,
+    brio: 0.08400445611372839, ciaz: 0.0630813667330847, city: 0.008647414848891657,
+    corolla: -0.22600750588604923, dzire: -0.037495510565395046, eon: -0.12862911889327672,
+    ertiga: 0.005915263250238203, etios: -0.08855721789125902, fortuner: 0.16487114978018425,
+    grand: 0.08499242932395548, hero: 0.03869411598627047, honda: -0.06953279274424304,
+    i10: 0.07520643337931815, i20: 0.0011501323261745508, innova: 0.175574910419305,
+    jazz: 0.013211966344137134, ktm: -0.03814377019084161, other: 0.05855101445597953,
+    ritz: -0.05794010672717545, royal: 0.04522263884163033, swift: 0.04547812981296607,
+    sx4: -0.06717803527527902, tvs: -0.02864723878585575, verna: 0.055217554321170134,
+    wagon: -0.016475400775188862, yamaha: -0.06487083363816556
+  }
+};
+
+const MODEL_LABELS = {
+  alto:"Maruti Alto", amaze:"Honda Amaze", bajaj:"Bajaj (motorcycle)", brio:"Honda Brio",
+  ciaz:"Maruti Ciaz", city:"Honda City", corolla:"Toyota Corolla Altis", dzire:"Maruti Dzire",
+  eon:"Hyundai Eon", ertiga:"Maruti Ertiga", etios:"Toyota Etios", fortuner:"Toyota Fortuner",
+  grand:"Hyundai Grand i10", hero:"Hero (motorcycle)", honda:"Honda (other model)",
+  i10:"Hyundai i10", i20:"Hyundai i20", innova:"Toyota Innova", jazz:"Honda Jazz",
+  ktm:"KTM (motorcycle)", ritz:"Maruti Ritz", royal:"Royal Enfield (motorcycle)",
+  swift:"Maruti Swift", sx4:"Maruti SX4", tvs:"TVS (motorcycle)", verna:"Hyundai Verna",
+  wagon:"Maruti Wagon R", yamaha:"Yamaha (motorcycle)", other:"Other model"
+};
+
+const modelSelect = document.getElementById('model');
+Object.keys(MODEL_LABELS).sort((a,b)=>MODEL_LABELS[a].localeCompare(MODEL_LABELS[b])).forEach(key=>{
+  const opt = document.createElement('option');
+  opt.value = key;
+  opt.textContent = MODEL_LABELS[key];
+  if(key === 'city') opt.selected = true;
+  modelSelect.appendChild(opt);
+});
+
+const state = {
+  presentPrice: 9,
+  age: 5,
+  kms: 40000,
+  owner: 0,
+  fuel: 'Petrol',
+  transmission: 'Manual',
+  sellingType: 'Dealer',
+  brand: 'city'
+};
+
+function setupPills(id, stateKey){
+  const container = document.getElementById(id);
+  container.querySelectorAll('.pill').forEach(pill=>{
+    pill.addEventListener('click', ()=>{
+      container.querySelectorAll('.pill').forEach(p=>p.classList.remove('active'));
+      pill.classList.add('active');
+      state[stateKey] = pill.dataset.val;
+      update();
+    });
+  });
+}
+setupPills('ownerPills','owner');
+setupPills('fuelPills','fuel');
+setupPills('transPills','transmission');
+setupPills('sellPills','sellingType');
+
+document.getElementById('presentPrice').addEventListener('input', e=>{
+  state.presentPrice = parseFloat(e.target.value);
+  document.getElementById('presentPriceVal').textContent = state.presentPrice.toFixed(2) + ' lakh';
+  update();
+});
+document.getElementById('age').addEventListener('input', e=>{
+  state.age = parseInt(e.target.value);
+  document.getElementById('ageVal').textContent = state.age + (state.age===1?' yr':' yrs');
+  update();
+});
+document.getElementById('kms').addEventListener('input', e=>{
+  state.kms = parseInt(e.target.value);
+  document.getElementById('kmsVal').textContent = Math.round(state.kms).toLocaleString() + ' km';
+  update();
+});
+modelSelect.addEventListener('change', e=>{
+  state.brand = e.target.value;
+  update();
+});
+
+function contributions(){
+  const logPP = Math.log1p(state.presentPrice);
+  return [
+    { name:'Model', val: COEF.brand[state.brand] || 0 },
+    { name:'Showroom price', val: COEF.log_present_price * logPP },
+    { name:'Age', val: COEF.car_age * state.age },
+    { name:'Mileage', val: COEF.driven_kms * state.kms },
+    { name:'Owners', val: COEF.owner * parseInt(state.owner) },
+    { name:'Fuel', val: COEF.fuel[state.fuel] || 0 },
+    { name:'Sold by', val: COEF.selling_type[state.sellingType] || 0 },
+    { name:'Transmission', val: COEF.transmission[state.transmission] || 0 },
+  ];
+}
+
+function predictLog(){
+  const c = contributions();
+  return COEF.intercept + c.reduce((s,x)=>s+x.val,0);
+}
+
+function update(){
+  const logPrice = predictLog();
+  const price = Math.expm1(logPrice);
+  const priceClamped = Math.max(price, 0.1);
+
+  document.getElementById('priceOut').textContent = priceClamped.toFixed(2) + ' lakh';
+  const lo = priceClamped * 0.85, hi = priceClamped * 1.15;
+  document.getElementById('rangeOut').textContent = 'approx range ' + lo.toFixed(2) + ' - ' + hi.toFixed(2) + ' lakh';
+
+  const c = contributions();
+  const maxAbs = Math.max(...c.map(x=>Math.abs(x.val)), 0.01);
+  const factorsEl = document.getElementById('factors');
+  factorsEl.innerHTML = '';
+  c.forEach(item=>{
+    const row = document.createElement('div');
+    row.className = 'factor-row';
+
+    const name = document.createElement('div');
+    name.className = 'factor-name';
+    name.textContent = item.name;
+
+    const track = document.createElement('div');
+    track.className = 'factor-bar-track';
+    const mid = document.createElement('div');
+    mid.className = 'factor-bar-mid';
+    track.appendChild(mid);
+
+    const fill = document.createElement('div');
+    fill.className = 'factor-bar-fill';
+    const pct = Math.min(Math.abs(item.val) / maxAbs * 48, 48);
+    fill.style.width = pct + '%';
+    fill.style.background = item.val >= 0 ? 'var(--up)' : 'var(--down)';
+    if(item.val >= 0){
+      fill.style.left = '50%';
+    } else {
+      fill.style.right = '50%';
+    }
+    track.appendChild(fill);
+
+    const val = document.createElement('div');
+    val.className = 'factor-val';
+    val.textContent = (item.val >= 0 ? '+' : '') + item.val.toFixed(3);
+
+    row.appendChild(name);
+    row.appendChild(track);
+    row.appendChild(val);
+    factorsEl.appendChild(row);
+  });
+}
+
+update();
+</script>
+</body>
+</html>
