@@ -332,10 +332,6 @@ Estimated Car Price: ₹7,50,000
 
 ---
 
-# 📸 Screenshots
-
-Store all project screenshots inside the `screenshots` folder.
-
 ## 📊 Dataset Preview
 
 ```text
